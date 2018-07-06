@@ -115,6 +115,10 @@ FN("nohup", FNOHUP, OF_ANY
 >|
 FN("nolog", FNOLOG, OF_ANY
 
+/* ./.  don't print the interrupt sequence (^C) when a keyboard interrupt is received */
+>|!MKSH_NO_CMDLINE_EDITING
+FN("noprintintchar", FNOPRINTINTCHAR, OF_ANY
+
 /* -b	asynchronous job completion notification */
 >b|!MKSH_UNEMPLOYED
 FN("notify", FNOTIFY, OF_ANY

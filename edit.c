@@ -2312,7 +2312,8 @@ x_meta_yank(int c MKSH_A_UNUSED)
 static void
 x_intr(int signo, int c)
 {
-	x_vi_zotc(c);
+	if (!Flag(FNOPRINTINTCHAR))
+		x_vi_zotc(c);
         if (!Flag(FDROPINTLINE)) {
                 *xep = '\0';
                 strip_nuls(xbuf, xep - xbuf);
