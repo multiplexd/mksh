@@ -51,6 +51,10 @@ FN("bgnice", FBGNICE, OF_ANY
 >|
 FN("braceexpand", FBRACEEXPAND, OF_ANY
 
+/* ./.  don't save lines to history upon receiving an interrupt edchar */
+>|!MKSH_NO_CMDLINE_EDITING
+FN("dropintline", FDROPINTLINE, OF_ANY
+
 /* ./.	Emacs command line editing mode */
 >|!MKSH_NO_CMDLINE_EDITING
 FN("emacs", FEMACS, OF_ANY
