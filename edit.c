@@ -2314,15 +2314,17 @@ static void
 x_intr(int signo, int c)
 {
 	x_vi_zotc(c);
-	*xep = '\0';
-	strip_nuls(xbuf, xep - xbuf);
-	if (*xbuf)
-		histsave(&source->line, xbuf, HIST_STORE, true);
-	xlp = xep = xcp = xbp = xbuf;
-	xlp_valid = true;
-	*xcp = 0;
-	x_modified();
-	x_flush();
+        if (!Flag(FDROPINTLINE)) {
+                *xep = '\0';
+                strip_nuls(xbuf, xep - xbuf);
+                if (*xbuf)
+                        histsave(&source->line, xbuf, HIST_STORE, true);
+                xlp = xep = xcp = xbp = xbuf;
+                xlp_valid = true;
+                *xcp = 0;
+                x_modified();
+        }
+        x_flush();
 	trapsig(signo);
 	x_mode(false);
 	unwind(LSHELL);
