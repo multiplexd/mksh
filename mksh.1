@@ -4306,6 +4306,12 @@ signal.
 No effect.
 In the original Korn shell, this prevents function definitions from
 being stored in the history file.
+.It Fl o Ic noprintintchar
+When
+.Nm
+receives a keyboard interrupt (\*(haC), disable the printing of the interrupt
+sequence at the cursor's current position and immediately start a new line and
+reprint the prompt.
 .It Fl o Ic physical
 Causes the
 .Ic cd
