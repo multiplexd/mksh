@@ -3654,11 +3654,12 @@ vi_hook(int ch)
 		if (!ch) switch (cmdlen = 0, (ch = x_getc())) {
 		case 71: ch = '0'; goto pseudo_vi_command;
 		case 72: ch = 'k'; goto pseudo_vi_command;
-		case 73: ch = 'A'; goto vi_xfunc_search_up;
+		case 73: ch = 'A'; goto vi_xfunc_search;
 		case 75: ch = 'h'; goto pseudo_vi_command;
 		case 77: ch = 'l'; goto pseudo_vi_command;
 		case 79: ch = '$'; goto pseudo_vi_command;
 		case 80: ch = 'j'; goto pseudo_vi_command;
+		case 81: ch = 'B'; goto vi_xfunc_search;
 		case 83: ch = 'x'; goto pseudo_vi_command;
 		default: ch = 0; goto vi_insert_failed;
 		}
@@ -3861,10 +3862,12 @@ vi_hook(int ch)
 		break;
 
 	case VPREFIX2:
- vi_xfunc_search_up:
+ vi_xfunc_search:
 		state = VFAIL;
 		switch (ch) {
 		case 'A':
+			/* upwards history search */
+
 			/* the cursor may not be at the BOL */
 			if (!vs->cursor)
 				break;
@@ -3880,6 +3883,24 @@ vi_hook(int ch)
 			argc1 = 2 + (int)vs->cursor;
 			/* and emulate a backwards history search */
 			lastsearch = '/';
+			*curcmd = 'n';
+			goto pseudo_VCMD;
+		case 'B':
+			/* downwards history search, similar to above */
+
+			if (!vs->cursor)
+				break;
+			if ((size_t)vs->cursor >= sizeof(srchpat) - 1)
+				vs->cursor = sizeof(srchpat) - 2;
+
+			srchpat[0] = '^';
+			memmove(srchpat + 1, vs->cbuf, vs->cursor);
+			srchpat[vs->cursor + 1] = '\0';
+
+			argc1 = 2 + (int)vs->cursor;
+
+			/* emulate a forwards history search */
+			lastsearch = '?';
 			*curcmd = 'n';
 			goto pseudo_VCMD;
 		}
