@@ -3606,11 +3606,13 @@ x_vi(char *buf)
 		if (state != VLIT) {
 			if (isched(c, edchars.intr) ||
 			    isched(c, edchars.quit)) {
-				/* shove input buffer away */
-				xbuf = ebuf.cbuf;
-				xep = xbuf;
-				if (ebuf.linelen > 0)
-					xep += ebuf.linelen;
+                                if (!Flag(FDROPINTLINE)) {
+					/* shove input buffer away */
+					xbuf = ebuf.cbuf;
+					xep = xbuf;
+					if (ebuf.linelen > 0)
+						xep += ebuf.linelen;
+				}
 				/* pretend we got an interrupt */
 				x_intr(isched(c, edchars.intr) ?
 				    SIGINT : SIGQUIT, c);
