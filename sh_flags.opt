@@ -131,6 +131,10 @@ FN("pipefail", FPIPEFAIL, OF_ANY
 >|
 FN("posix", FPOSIX, OF_ANY
 
+/* -P   code preload/pre-execution (hairy hack!) */
+>P|!SHFLAGS_NOT_CMD
+FN("preload", FPRELOAD, OF_ANY
+
 /* -p	privileged shell (suid) */
 >p|
 FN("privileged", FPRIVILEGED, OF_ANY
