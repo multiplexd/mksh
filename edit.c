@@ -610,6 +610,81 @@ x_locate_word(const char *buf, int buflen, int pos, int *startp,
 }
 
 static int
+x_try_array(const char *buf, int buflen, const char *want, int wantlen,
+    int *nwords, char ***words)
+{
+	const char *cmd, *cp;
+	int cmdlen, n, i, slen;
+	char *name, *s;
+	struct tbl *v, *vp;
+
+	*nwords = 0;
+	*words = NULL;
+
+	/* Walk back to find start of command. */
+	if (want == buf)
+		return 0;
+	for (cmd = want; cmd > buf; cmd--) {
+		if (strchr(";|&()`", cmd[-1]) != NULL)
+			break;
+	}
+	while (cmd < want && ctype((u_char)*cmd, C_SPACE))
+		cmd++;
+	cmdlen = 0;
+	while (cmd + cmdlen < want && !ctype((u_char)cmd[cmdlen], C_SPACE))
+		cmdlen++;
+	for (i = 0; i < cmdlen; i++) {
+		if (!ctype((u_char)cmd[i], C_ALNUX) && cmd[i] != '_')
+			return 0;
+	}
+
+	/* Take a stab at argument count from here. */
+	n = 1;
+	for (cp = cmd + cmdlen + 1; cp < want; cp++) {
+		if (!ctype((u_char)cp[-1], C_SPACE) && ctype((u_char)*cp, C_SPACE))
+			n++;
+	}
+
+	/* Try to find the array. */
+	if (asprintf(&name, "complete_%.*s_%d", cmdlen, cmd, n) < 0)
+		internal_errorf("unable to allocate memory");
+	v = global(name);
+	free(name);
+	if (~v->flag & (ISSET|ARRAY)) {
+		if (asprintf(&name, "complete_%.*s", cmdlen, cmd) < 0)
+			internal_errorf("unable to allocate memory");
+		v = global(name);
+		free(name);
+		if (~v->flag & (ISSET|ARRAY))
+			return 0;
+	}
+
+	/* Walk the array and build words list. */
+	for (vp = v; vp; vp = vp->u.array) {
+		if (~vp->flag & ISSET)
+			continue;
+
+		s = str_val(vp);
+		slen = strlen(s);
+
+		if (slen < wantlen)
+			continue;
+		if (slen > wantlen)
+			slen = wantlen;
+		if (slen != 0 && strncmp(s, want, slen) != 0)
+			continue;
+
+		*words = aresize(*words, ((*nwords) + 2) * (sizeof **words),
+		    ATEMP);
+		strdupx((*words)[(*nwords)++], s, ATEMP);
+	}
+	if (*nwords != 0)
+		(*words)[*nwords] = NULL;
+
+	return *nwords != 0;
+}
+
+static int
 x_cf_glob(int *flagsp, const char *buf, int buflen, int pos, int *startp,
     int *endp, char ***wordsp)
 {
@@ -677,9 +752,10 @@ x_cf_glob(int *flagsp, const char *buf, int buflen, int pos, int *startp,
 		 * Expand (glob) it now.
 		 */
 
-		nwords = is_command ?
-		    x_command_glob(*flagsp, toglob, &words) :
-		    x_file_glob(flagsp, toglob, &words);
+		if (is_command)
+		   nwords = x_command_glob(*flagsp, toglob, &words);
+		else if (!x_try_array(buf, buflen, buf + *startp, len, &nwords, &words))
+		   nwords = x_file_glob(flagsp, toglob, &words);
 		afree(toglob, ATEMP);
 	}
 	if (nwords == 0) {
