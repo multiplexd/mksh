@@ -41,6 +41,10 @@ __RCSID("$MirOS: src/bin/mksh/main.c,v 1.360 2019/12/30 03:58:56 tg Exp $");
 #define MKSHRC_PATH	"~/.mkshrc"
 #endif
 
+#ifndef MKSH_PRELOAD_PATH
+#define MKSH_PRELOAD_PATH	"~/.mksh_preload"
+#endif
+
 #ifndef MKSH_DEFAULT_TMPDIR
 #define MKSH_DEFAULT_TMPDIR	MKSH_UNIXROOT "/tmp"
 #endif
@@ -647,6 +651,31 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	 */
 	if (!current_wd[0] && Flag(FTALKING))
 		warningf(false, "can't determine current directory");
+
+	/*
+	 * LD_PRELOAD-like hack for shell. If this is an (unprivileged and
+	 * unrestricted) (login or interactive) shell and preload has *not*
+	 * been requested, then execute the user preload file. Otherwise,
+	 * if preload has been requested explicitly, load the preload file
+	 * given in the environment variable MKSH_PRELOAD if set or the user
+	 * preload file if unset.
+	 */
+        if (!restricted_shell && !Flag(FPRIVILEGED) && !Flag(FPRELOAD)
+            && Flag(FLOGIN)) {
+                include(substitute(MKSH_PRELOAD_PATH, DOTILDE), 0, NULL, true);
+        } else if (Flag(FPRELOAD)) {
+                cp = substitute(substitute("${MKSH_PRELOAD:-" MKSH_PRELOAD_PATH "}",
+				   0), DOTILDE);
+		if (cp[0] != '\0')
+			include(cp, 0, NULL, true);
+        }
+	
+
+	if (Flag(FPRELOAD) && !Flag(FPRIVILEGED)) {
+		cp = substitute("${MKSH_PRELOAD:-" MKSH_PRELOAD_PATH "}", DOTILDE);
+		if (cp[0] != '\0')
+			include(cp, 0, NULL, true);	
+	}
 
 	if (Flag(FLOGIN))
 		include(MKSH_SYSTEM_PROFILE, 0, NULL, true);
