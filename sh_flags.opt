@@ -67,6 +67,10 @@ FN("gmacs", FGMACS, OF_ANY
 >|
 FN("ignoreeof", FIGNOREEOF, OF_ANY
 
+/* ./.  enable ignoring of certain paths in the include() function */
+>|
+FN("ignoreinclude", FIGNOREINCLUDE, OF_ANY
+
 /* ./.	inherit -x flag */
 >|
 FN("inherit-xtrace", FXTRACEREC, OF_ANY

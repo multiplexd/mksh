@@ -705,6 +705,28 @@ main(int argc, const char *argv[])
 	return (rv);
 }
 
+static int
+is_forbidden_include(const char *name)
+{
+	char *s;
+	struct tbl *v, *vp;
+
+	v = global("__mksh_ignore_include");
+	if (~v->flag & (ISSET|ARRAY))
+		return 0;
+
+	for (vp = v; vp; vp = vp->u.array) {
+		if (~vp->flag & ISSET)
+			continue;
+
+		s = str_val(vp);
+		if (!strcmp(s, name))
+			return 1;
+	}
+
+	return 0;
+}
+
 int
 include(const char *name, int argc, const char **argv, bool intr_ok)
 {
@@ -713,6 +735,10 @@ include(const char *name, int argc, const char **argv, bool intr_ok)
 	const char **volatile old_argv;
 	volatile int old_argc;
 	int i;
+
+	/* look for paths we are forbidden from including */
+	if (Flag(FIGNOREINCLUDE) && is_forbidden_include(name))
+		return 0;
 
 	shf = shf_open(name, O_RDONLY | O_MAYEXEC, 0, SHF_MAPHI | SHF_CLEXEC);
 	if (shf == NULL)
