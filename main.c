@@ -660,8 +660,8 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	 * given in the environment variable MKSH_PRELOAD if set or the user
 	 * preload file if unset.
 	 */
-        if (!restricted_shell && !Flag(FPRIVILEGED) && !Flag(FPRELOAD)
-            && Flag(FLOGIN)) {
+	if (!restricted_shell && !Flag(FPRIVILEGED) && !Flag(FPRELOAD)
+    	    && (Flag(FLOGIN) || Flag(FTALKING))) {
                 include(substitute(MKSH_PRELOAD_PATH, DOTILDE), 0, NULL, true);
         } else if (Flag(FPRELOAD)) {
                 cp = substitute(substitute("${MKSH_PRELOAD:-" MKSH_PRELOAD_PATH "}",
