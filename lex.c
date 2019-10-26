@@ -1530,22 +1530,11 @@ set_prompt(int to, Source *s)
 int
 pprompt(const char *cp, int ntruncate)
 {
-	char delimiter = 0;
+	char delimiter = '\v';
 	bool doprint = (ntruncate != -1);
 	bool indelimit = false;
 	int columns = 0, lines = 0;
 
-	/*
-	 * Undocumented AT&T ksh feature:
-	 * If the second char in the prompt string is \r then the first
-	 * char is taken to be a non-printing delimiter and any chars
-	 * between two instances of the delimiter are not considered to
-	 * be part of the prompt length
-	 */
-	if (*cp && cp[1] == '\r') {
-		delimiter = *cp;
-		cp += 2;
-	}
 	for (; *cp; cp++) {
 		if (indelimit && *cp != delimiter)
 			;
