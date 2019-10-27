@@ -1537,7 +1537,7 @@ pprompt(const char *cp, int ntruncate)
 	struct tbl *vp;
 	char *s;
 
-	vp = global("PS1SEP");
+	vp = global("PS1DELIM");
 	if (vp->flag & ISSET) {
 		s = str_val(vp);
 
