@@ -63,6 +63,10 @@ FN("errexit", FERREXIT, OF_ANY
 >|!MKSH_NO_CMDLINE_EDITING
 FN("gmacs", FGMACS, OF_ANY
 
+/* ./.  enable appending newlines to here strings */
+>|
+FN("herestrnewline", FHERESTRNEWLINE, OF_ANY
+
 /* ./.	reading EOF does not exit */
 >|
 FN("ignoreeof", FIGNOREEOF, OF_ANY
