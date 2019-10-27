@@ -1529,10 +1529,20 @@ set_prompt(int to, Source *s)
 int
 pprompt(const char *cp, int ntruncate)
 {
-	char delimiter = '\v';
+	char delimiter = 0;
 	bool doprint = (ntruncate != -1);
 	bool indelimit = false;
 	int columns = 0, lines = 0;
+	struct tbl *vp;
+	char *s;
+
+	vp = global("PS1SEP");
+	if (vp->flag & ISSET) {
+		s = str_val(vp);
+
+		if (*s != '\0')
+			delimiter = *s;
+	}
 
 	for (; *cp; cp++) {
 		if (indelimit && *cp != delimiter)
