@@ -653,28 +653,22 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 		warningf(false, "can't determine current directory");
 
 	/*
-	 * LD_PRELOAD-like hack for shell. If this is an (unprivileged and
-	 * unrestricted) (login or interactive) shell and preload has *not*
-	 * been requested, then execute the user preload file. Otherwise,
-	 * if preload has been requested explicitly, load the preload file
-	 * given in the environment variable MKSH_PRELOAD if set or the user
-	 * preload file if unset.
+	 * LD_PRELOAD-like hack for shell. If this is an unprivileged and
+	 * unrestricted login shell and preload is requested, then load the user
+	 * preload file. If this is an unrestricted and unprivileged interactive
+	 * shell and preload is requested, then load the preload file given in
+	 * the paramter MKSH_PRELOAD, or the user preload file if unset.
 	 */
-	if (!restricted_shell && !Flag(FPRIVILEGED) && !Flag(FPRELOAD)
-    	    && (Flag(FLOGIN) || Flag(FTALKING))) {
-                include(substitute(MKSH_PRELOAD_PATH, DOTILDE), 0, NULL, true);
-        } else if (Flag(FPRELOAD)) {
-                cp = substitute(substitute("${MKSH_PRELOAD:-" MKSH_PRELOAD_PATH "}",
+	if (!restricted_shell && !Flag(FPRIVILEGED) && Flag(FPRELOAD)) {
+		if (Flag(FTALKING)) {
+			cp = substitute(substitute("${MKSH_PRELOAD:-" MKSH_PRELOAD_PATH "}",
 				   0), DOTILDE);
-		if (cp[0] != '\0')
-			include(cp, 0, NULL, true);
-        }
-	
-
-	if (Flag(FPRELOAD) && !Flag(FPRIVILEGED)) {
-		cp = substitute("${MKSH_PRELOAD:-" MKSH_PRELOAD_PATH "}", DOTILDE);
-		if (cp[0] != '\0')
-			include(cp, 0, NULL, true);	
+			if (cp[0] != '\0')
+				include(cp, 0, NULL, true);
+		} else if (Flag(FLOGIN)) {
+			include(substitute(MKSH_PRELOAD_PATH, DOTILDE),
+					0, NULL, true);
+		}
 	}
 
 	if (Flag(FLOGIN))
