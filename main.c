@@ -300,6 +300,11 @@ main_init(int argc, const char *argv[], Source **sp, struct block **lp)
 	 */
 	Flag(FXTRACEREC) = 1;
 
+	/*
+	 * Turn on here string newline appending by default.
+	 */
+	Flag(FHERESTRNEWLINE) = 1;
+
 	/* define built-in commands and see if we were called as one */
 	ktinit(APERM, &builtins,
 	    /* currently up to 52 builtins: 75% of 128 = 2^7 */
