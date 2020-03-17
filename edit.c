@@ -3864,10 +3864,7 @@ vi_hook(int ch)
 	case VPREFIX2:
  vi_xfunc_search:
 		state = VFAIL;
-		switch (ch) {
-		case 'A':
-			/* upwards history search */
-
+		if (ch == 'A' || ch == 'B') {
 			/* the cursor may not be at the BOL */
 			if (!vs->cursor)
 				break;
@@ -3881,26 +3878,9 @@ vi_hook(int ch)
 			srchpat[vs->cursor + 1] = '\0';
 			/* set a magic flag */
 			argc1 = 2 + (int)vs->cursor;
-			/* and emulate a backwards history search */
-			lastsearch = '/';
-			*curcmd = 'n';
-			goto pseudo_VCMD;
-		case 'B':
-			/* downwards history search, similar to above */
-
-			if (!vs->cursor)
-				break;
-			if ((size_t)vs->cursor >= sizeof(srchpat) - 1)
-				vs->cursor = sizeof(srchpat) - 2;
-
-			srchpat[0] = '^';
-			memmove(srchpat + 1, vs->cbuf, vs->cursor);
-			srchpat[vs->cursor + 1] = '\0';
-
-			argc1 = 2 + (int)vs->cursor;
-
-			/* emulate a forwards history search */
-			lastsearch = '?';
+			/* and emulate a history search; backwards for page up,
+			   forwards for page down */
+			lastsearch = (ch == 'A') ? '/' : '?';
 			*curcmd = 'n';
 			goto pseudo_VCMD;
 		}
