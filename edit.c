@@ -5601,11 +5601,8 @@ x_done(void)
 void
 x_initterm(const char *termtype)
 {
-	/* default must be 0 (bss) */
-	x_term_mode = 0;
-	/* this is what tmux uses, don't ask me about it */
-	if (!strcmp(termtype, "screen") || !strncmp(termtype, "screen-", 7))
-		x_term_mode = 1;
+        (void) termtype;
+        x_term_mode = 1;
 }
 
 #ifndef MKSH_SMALL
