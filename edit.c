@@ -647,12 +647,12 @@ x_try_array(const char *buf, int buflen, const char *want, int wantlen,
 	}
 
 	/* Try to find the array. */
-	if (asprintf(&name, "complete_%.*s_%d", cmdlen, cmd, n) < 0)
+	if (asprintf(&name, "complete_%.*s_%d", cmdlen, cmd, n) == -1)
 		internal_errorf("unable to allocate memory");
 	v = global(name);
 	free(name);
 	if (~v->flag & (ISSET|ARRAY)) {
-		if (asprintf(&name, "complete_%.*s", cmdlen, cmd) < 0)
+		if (asprintf(&name, "complete_%.*s", cmdlen, cmd) == -1)
 			internal_errorf("unable to allocate memory");
 		v = global(name);
 		free(name);
